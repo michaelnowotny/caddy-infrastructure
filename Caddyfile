@@ -1,0 +1,38 @@
+# Caddy Infrastructure - Main Configuration File
+# This file provides the global configuration and imports all site-specific configs
+
+# Global options
+{
+    # Email for ACME registration (required for automatic HTTPS)
+    # Set via ACME_EMAIL environment variable
+    email {$ACME_EMAIL:admin@example.com}
+    
+    # Uncomment for staging/testing (uses Let's Encrypt staging servers)
+    # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+    
+    # Enable debug logging (useful for troubleshooting)
+    # debug
+    
+    # Grace period for shutting down
+    grace_period 10s
+    
+    # Enable admin API (for dynamic config updates)
+    # admin 0.0.0.0:2019
+}
+
+# Default site for health checks and catch-all
+:80 {
+    # Health check endpoint for monitoring
+    handle /health {
+        respond "Caddy Infrastructure OK" 200
+    }
+    
+    # Catch-all for undefined hosts
+    handle {
+        respond "No site configured for this host" 404
+    }
+}
+
+# Import all site-specific configurations
+# Each file in sites/ directory should contain configuration for one service
+import sites/*.caddy

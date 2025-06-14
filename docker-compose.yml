@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy-infrastructure
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./sites:/etc/caddy/sites:ro
+      - caddy_data:/data
+      - caddy_config:/config
+      - caddy_logs:/data/logs
+    environment:
+      - ACME_EMAIL=${ACME_EMAIL:-admin@example.com}
+      # Fibonacci service configuration
+      - FIBONACCI_DOMAIN=${FIBONACCI_DOMAIN:-}
+      - FIBONACCI_API_HOST=${FIBONACCI_API_HOST:-}
+      - FIBONACCI_API_PORT=${FIBONACCI_API_PORT:-8000}
+      - FIBONACCI_WORKS_HOST=${FIBONACCI_WORKS_HOST:-}
+      - FIBONACCI_WORKS_PORT=${FIBONACCI_WORKS_PORT:-80}
+      # Add more service environment variables as needed
+    networks:
+      - web
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
+  caddy_logs:
+    driver: local
+
+networks:
+  web:
+    name: web
+    external: true

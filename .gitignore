@@ -1,0 +1,28 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Caddy data (certificates, etc.)
+caddy_data/
+caddy_config/
+caddy_logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+
+# Temporary files
+*.tmp
+*.temp

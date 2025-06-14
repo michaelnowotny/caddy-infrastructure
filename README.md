@@ -27,7 +27,7 @@ This project provides a standalone Caddy server configuration that:
 
 2. **Create the shared Docker network**:
    ```bash
-   docker network create web
+   docker network create caddy
    ```
 
 3. **Configure environment**:
@@ -99,7 +99,7 @@ myapp.example.com {
 
 ## Connecting Services
 
-Services must be on the same Docker network (`web`) to be accessible by Caddy.
+Services must be on the same Docker network (`caddy`) to be accessible by Caddy.
 
 ### For Docker Compose services:
 
@@ -108,14 +108,14 @@ Add to your service's `docker-compose.yml`:
 ```yaml
 networks:
   default:
-    name: web
+    name: caddy
     external: true
 ```
 
 ### For standalone containers:
 
 ```bash
-docker run --network web --name myapp myapp:latest
+docker run --network caddy --name myapp myapp:latest
 ```
 
 ## Configuration Examples
@@ -190,7 +190,7 @@ If enabled in Caddyfile, access at `http://localhost:2019/`
 - Ensure ports 80/443 are open in firewall
 
 ### Service Not Accessible
-- Verify service is on `web` network: `docker network inspect web`
+- Verify service is on `caddy` network: `docker network inspect caddy`
 - Check service is running: `docker ps`
 - Test from Caddy container: `docker compose exec caddy wget -O- http://service-name:port`
 

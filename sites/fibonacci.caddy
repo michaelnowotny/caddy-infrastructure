@@ -7,6 +7,9 @@
 # - FIBONACCI_API_PORT: Port where fibonacci-api is running (default: 8000)
 # - FIBONACCI_WORKS_HOST: Internal hostname/IP of the fibonacci-works service (optional)
 # - FIBONACCI_WORKS_PORT: Port where fibonacci-works is running (default: 80)
+#
+# The API is completely reverse-proxy agnostic. Caddy strips the /api prefix
+# before forwarding requests, so the API always sees requests at its root path.
 
 # Production HTTPS configuration
 {$FIBONACCI_DOMAIN:fibonacci.example.com} {
@@ -18,8 +21,11 @@
         protocols tls1.2 tls1.3
     }
     
-    # API routing - strip /api prefix and forward to backend
-    handle_path /api/* {
+    # API routing - strip /api prefix before forwarding
+    handle /api/* {
+        # Remove the /api prefix from the URI
+        uri strip_prefix /api
+        
         reverse_proxy {$FIBONACCI_API_HOST:fibonacci-api}:{$FIBONACCI_API_PORT:8000} {
             # Add headers for proper proxying
             header_up X-Real-IP {remote_host}
@@ -35,13 +41,15 @@
         }
     }
     
+    
+    
     # Health check endpoint (at domain level)
     handle /health {
         respond "Fibonacci Service OK" 200
     }
     
     # Frontend routing (if fibonacci-works is configured)
-    @frontend_configured expression `{$FIBONACCI_WORKS_HOST} != ""`
+    @frontend_configured expression `"{$FIBONACCI_WORKS_HOST}" != ""`
     handle @frontend_configured {
         reverse_proxy {$FIBONACCI_WORKS_HOST:fibonacci-works}:{$FIBONACCI_WORKS_PORT:80} {
             # Try frontend briefly, fall back if not available

@@ -176,7 +176,7 @@ curl http://your-server/health
 docker compose logs -f caddy
 
 # View access logs
-docker compose exec caddy tail -f /data/logs/fibonacci-access.log
+docker compose exec caddy tail -f /data/logs/fibonacci.porcupine.works-access.log
 ```
 
 ### Caddy Admin API
